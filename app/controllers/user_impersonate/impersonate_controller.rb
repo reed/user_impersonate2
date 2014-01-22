@@ -32,7 +32,7 @@ module UserImpersonate
     end
 
     private
-    
+
     def current_user_must_be_staff!
       unless user_is_staff?(current_user)
         flash[:error] = "You don't have access to this section."
@@ -121,12 +121,12 @@ module UserImpersonate
     end
 
     def redirect_on_impersonate(impersonated_user)
-      url = config_or_default :redirect_on_impersonate, root_url
+      url = config_or_default :redirect_on_impersonate, main_app.root_url
       redirect_to url
     end
 
     def redirect_on_revert(impersonated_user = nil)
-      url = config_or_default :redirect_on_revert, root_url
+      url = config_or_default :redirect_on_revert, main_app.root_url
       redirect_to url
     end
 
