@@ -141,12 +141,12 @@ module UserImpersonate
     end
 
     def redirect_on_impersonate(impersonated_user)
-      url = config_or_default :redirect_on_impersonate, root_url
+      url = config_or_default :redirect_on_impersonate, main_app.root_url
       redirect_to url
     end
 
     def redirect_on_revert(impersonated_user = nil, redirect_params = params)
-      url = config_or_default :redirect_on_revert, root_url
+      url = config_or_default :redirect_on_revert, main_app.root_url
       redirect_to url, {}.merge(redirect_params.permit) # NOTE: not sure at this point what params does it need.
     end
 
