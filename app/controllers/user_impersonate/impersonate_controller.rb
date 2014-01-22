@@ -3,29 +3,12 @@ require_dependency "user_impersonate/application_controller"
 module UserImpersonate
   class ImpersonateController < ApplicationController
     before_filter :authenticate_the_user
+    before_filter :set_user, :user_cannot_be_staff!, only: :create
     before_filter :current_user_must_be_staff!, except: ["destroy"]
-
-    # Display list of all users, except current (staff) user
-    # Is this exclusion unnecessary complexity?
-    # Normal apps wouldn't bother with this action; rather they would
-    # go straight to GET /impersonate/user/123 (create action)
-    def index
-      users_table = Arel::Table.new(user_table.to_sym) # e.g. :users
-      id_column = users_table[user_id_column.to_sym]   # e.g. users_table[:id]
-      @users = user_class.order("updated_at DESC").
-                    where(
-                      id_column.not_in [
-                        current_user.send(user_id_column.to_sym) # e.g. current_user.id
-                      ])
-      if params[:search]
-        @users = @users.where("#{user_name_column} like ?", "%#{params[:search]}%")
-      end
-    end
 
     # Perform the user impersonate action
     # GET /impersonate/user/123
     def create
-      @user = find_user(params[:user_id])
       impersonate(@user)
       redirect_on_impersonate(@user)
     end
@@ -49,6 +32,7 @@ module UserImpersonate
     end
 
     private
+    
     def current_user_must_be_staff!
       unless user_is_staff?(current_user)
         flash[:error] = "You don't have access to this section."
@@ -58,10 +42,23 @@ module UserImpersonate
       redirect_to '/'
     end
 
+    def set_user
+      @user ||= find_user params[:user_id]
+    end
+
+    def user_cannot_be_staff!
+      if user_is_staff?(@user)
+        flash[:error] = "You cannot impersonate other admins."
+        redirect_to :back
+      end
+    rescue ActionController::RedirectBackError
+      redirect_to '/'
+    end
+
     # current_user changes from a staff user to
     # +new_user+; current user stored in +session[:staff_user_id]+
     def impersonate(new_user)
-      session[:staff_user_id] = current_user.id #
+      session[:staff_user_id] = current_user.id
       sign_in_user new_user
     end
 
@@ -91,8 +88,8 @@ module UserImpersonate
     # Similar to user.staff?
     # Using all the UserImpersonate config options
     def user_is_staff?(user)
-      current_user.respond_to?(user_is_staff_method.to_sym) &&
-        current_user.send(user_is_staff_method.to_sym)
+      user.respond_to?(user_is_staff_method.to_sym) &&
+        user.send(user_is_staff_method.to_sym)
     end
 
     def user_finder_method
