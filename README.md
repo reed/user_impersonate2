@@ -94,10 +94,6 @@ def to_s
 end
 ```
 
-You can now go to [http://localhost:3000/impersonate](http://localhost:3000/impersonate)
-to see the list of users, except your own user account. Click on the
-"Impersonate" link to impersonate that user and to see the magic!
-
 ## Integration
 
 To support this Rails engine, you need to add some things.
