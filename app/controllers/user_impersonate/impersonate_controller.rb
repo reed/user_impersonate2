@@ -154,7 +154,8 @@ module UserImpersonate
     def config_or_default(attribute, default)
       attribute = attribute.to_sym
       if UserImpersonate::Engine.config.respond_to?(attribute)
-        UserImpersonate::Engine.config.send(attribute)
+        value = UserImpersonate::Engine.config.send(attribute)
+        value.respond_to?(:call) ? value.call(self) : value
       else
         default
       end
