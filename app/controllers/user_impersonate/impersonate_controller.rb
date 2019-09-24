@@ -2,9 +2,9 @@ require_dependency "user_impersonate/application_controller"
 
 module UserImpersonate
   class ImpersonateController < ApplicationController
-    before_filter :authenticate_the_user
-    before_filter :set_user, :user_cannot_be_staff!, only: :create
-    before_filter :current_user_must_be_staff!, except: ["destroy"]
+    before_action :authenticate_the_user
+    before_action :set_user, :user_cannot_be_staff!, only: :create
+    before_action :current_user_must_be_staff!, except: ["destroy"]
 
     # Perform the user impersonate action
     # GET /impersonate/user/123
