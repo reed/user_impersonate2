@@ -54,11 +54,8 @@ module UserImpersonate
 
     def user_cannot_be_staff!
       if user_is_staff?(@user)
-        flash[:error] = "You cannot impersonate other admins."
-        redirect_to :back
+        redirect_back(fallback_location: '/', error: 'You cannot impersonate other admins.')
       end
-    rescue ActionController::RedirectBackError
-      redirect_to '/'
     end
 
     # current_user changes from a staff user to
